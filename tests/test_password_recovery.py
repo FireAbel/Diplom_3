@@ -1,39 +1,33 @@
 import pytest
 import allure
-from pages.password_recovery_page import PasswordRecoveryPage
-from data import Urls
+from conftest import login_page, password_recovery_page
+from urls import Urls
 
 @allure.feature('Восстановление пароля')
 class TestPasswordRecovery:
-    
+    @pytest.mark.parametrize('driver', ['chrome', 'firefox'], indirect=True)
     @allure.title('Проверка URL страницы восстановления пароля')
-    def test_password_recovery_page_url(self, driver):
-        # Открываем страницу восстановления пароля напрямую
-        password_recovery_page = PasswordRecoveryPage(driver)
-        password_recovery_page.open_page()
+    def test_password_recovery_page_url(self, driver, login_page):
+        login_page.open_site()
+        login_page.click_forgot_password()
         assert driver.current_url == Urls.FORGOT_PASSWORD
 
-    @allure.title('Проверка видимости формы восстановления пароля')
-    def test_password_recovery_form_visible(self, driver):
-        # Открываем страницу восстановления пароля напрямую
-        password_recovery_page = PasswordRecoveryPage(driver)
-        password_recovery_page.open_page()
-        assert password_recovery_page.is_recovery_form_visible()
 
-    @allure.title('Проверка ввода почты и клика по кнопке "Восстановить"')
-    def test_enter_email_and_click_recover(self, driver):
-        recovery_page = PasswordRecoveryPage(driver)
-        recovery_page.open_page()
-        recovery_page.enter_email("test@example.com")
-        recovery_page.click_recover_button()
-        assert recovery_page.is_password_field_active(), "Поле для ввода нового пароля не активно"
+    @pytest.mark.parametrize('driver', ['chrome', 'firefox'], indirect=True)
+    @allure.title('Проверка перехода на страницу восстановления пароля')
+    def test_password_recovery_page_access(self, driver, login_page, password_recovery_page):
+        login_page.open_site()
+        login_page.click_forgot_password()
+        password_recovery_page.input_email()
+        password_recovery_page.click_recovery_button()
+        assert driver.current_url == Urls.RESET_PASSWORD
 
+    @pytest.mark.parametrize('driver', ['chrome', 'firefox'], indirect=True)
     @allure.title('Проверка активации поля при клике на кнопку "Показать пароль"')
-    def test_password_field_highlight_on_show_click(self, driver):
-        recovery_page = PasswordRecoveryPage(driver)
-        recovery_page.open_page()
-        recovery_page.enter_email("test@example.com")
-        recovery_page.click_recover_button()
-        assert recovery_page.is_password_field_active(), "Поле для ввода нового пароля не активно"
-        recovery_page.click_show_password_icon()
-        assert recovery_page.is_password_field_focused(), "Поле пароля не подсвечено после клика на иконку показать/скрыть"
+    def test_password_field_highlight_on_show_click(self, driver, login_page, password_recovery_page):
+        login_page.open_site()
+        login_page.click_forgot_password()
+        password_recovery_page.input_email()
+        password_recovery_page.click_recovery_button()
+        password_recovery_page.click_show_password()
+        assert password_recovery_page.is_password_input_active(), "Поле для ввода нового пароля не активно"

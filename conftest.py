@@ -5,7 +5,12 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from pages.login_page import LoginPage
-from data import Urls, UserTestData
+from pages.main_page import MainPage
+from pages.password_recovery_page import PasswordRecoveryPage
+from pages.order_feed_page import OrderFeedPage
+from pages.account_page import AccountPage
+from data import UserTestData
+from urls import Urls
 
 @pytest.fixture(params=["chrome", "firefox"])
 def driver(request):
@@ -20,6 +25,34 @@ def driver(request):
     yield driver
     driver.quit()
 
+def pytest_addoption(parser):
+    parser.addoption("--browser", action="store", default="chrome", help="Browser to run tests (chrome or firefox)")
+
+@pytest.fixture
+def main_page(driver):
+    main_page = MainPage(driver)
+    return main_page
+
+@pytest.fixture
+def login_page(driver):
+    login_page = LoginPage(driver)
+    return login_page
+
+@pytest.fixture
+def password_recovery_page(driver):
+    password_recovery_page = PasswordRecoveryPage(driver)
+    return password_recovery_page
+
+@pytest.fixture
+def order_feed_page(driver):
+    order_feed_page = OrderFeedPage(driver)
+    return order_feed_page
+
+@pytest.fixture
+def account_page(driver):
+    account_page = AccountPage(driver)
+    return account_page
+
 @pytest.fixture(scope="function")
 def login_to_account(driver):
     login_page = LoginPage(driver)
@@ -28,6 +61,3 @@ def login_to_account(driver):
     login_page.enter_password(UserTestData.TEST_USER_PASSWORD)
     login_page.click_login_button()
     return driver
-
-def pytest_addoption(parser):
-    parser.addoption("--browser", action="store", default="chrome", help="Browser to run tests (chrome or firefox)")
