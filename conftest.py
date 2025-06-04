@@ -1,9 +1,5 @@
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
 from pages.login_page import LoginPage
 from pages.main_page import MainPage
 from pages.password_recovery_page import PasswordRecoveryPage
@@ -54,10 +50,7 @@ def account_page(driver):
     return account_page
 
 @pytest.fixture(scope="function")
-def login_to_account(driver):
-    login_page = LoginPage(driver)
-    login_page.open_page()
-    login_page.enter_email(UserTestData.TEST_USER_EMAIL)
-    login_page.enter_password(UserTestData.TEST_USER_PASSWORD)
-    login_page.click_login_button()
-    return driver
+def login_to_account(driver, login_page):
+    login_page.open_site()
+    login_page.login(UserTestData.TEST_USER_EMAIL, UserTestData.TEST_USER_PASSWORD)
+    yield
